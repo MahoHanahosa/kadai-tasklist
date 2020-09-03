@@ -83,15 +83,21 @@ class TasksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    //タスク詳細表示処理
     public function show($id)
     {
         //idの値でタスクを検索して取得
         $task = Task::findOrFail($id);
 
         //タスク詳細ビューでそれを表示
-        return view('tasks.show', [
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.show', [
             'task' => $task,
-        ]);
+            ]);
+        }else {
+            return redirect('/');
+        }
+        
     }
 
     /**
@@ -131,7 +137,7 @@ class TasksController extends Controller
         //idの値でタスクを検索して取得
         $task = Task::findOrFail($id);
         
-        //認証済みユーザがそのタスク所有者である場合、そのタスクを削除
+        //認証済みユーザがそのタスク所有者である場合、そのタスクを更新
         if (\Auth::id() === $task->user_id) {
             $request->user()->tasks()->update([
                 'status' => $request->status,
